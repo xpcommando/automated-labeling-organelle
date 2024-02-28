@@ -2,9 +2,9 @@ Using OpenCV2 to detect the shape of organelles, we can extract the points repre
 These points can serve as the label data for the organelle, eliminating  manual labeling in training, 
 and the need for fluorescence staining in the future organelle detection.
 
-Prepare: fluorescence images, 
-         refractive index images, 
-         label file(.json) in any one 
+Prepare: fluorescence images(TRITC.png), 
+         refractive index images(RI.png), 
+         label file(sample_label.json) in any one 
 
 1.Put in a label file  for initializing the new label file's frame
 
