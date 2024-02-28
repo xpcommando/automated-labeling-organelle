@@ -1,0 +1,141 @@
+# -*- coding:utf-8 -*-
+
+
+import cv2
+import json
+import base64
+
+import numpy as np
+
+o = cv2.imread('/26_TRITC.png')                  #input a fluorescence image of organelle by digital holographic microscopy
+#o = cv2.imread("/1_FITC.png")                   #1_FITC.png
+#o = cv2.imread("/user/sya/二値化/1_FITC.png")
+
+gray = cv2.cvtColor(o,cv2.COLOR_BGR2GRAY)
+#
+ret, binary = cv2.threshold(gray,50,255,cv2.THRESH_BINARY)
+contours, hierarchy = cv2.findContours(binary,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+num_con = len(contours)
+print(num_con)
+
+#Input FITC.json file 
+
+json_file = '/1_FITC_bin.json' #input any old .json file for initializing parameter of new .json
+#json_file ="/1_FITC_bin.json"
+
+data = json.load(open(json_file))
+img_data = data['imageData']
+ver = data['version']
+height = data['imageHeight']
+weight = data['imageWidth']
+
+
+def dict_json(imageData,shapes,imagePath,version,imageHeight,imageWidth):
+
+    #labelme input
+    '''
+
+    :param imageData: str
+    :param shapes: list
+    :param imagePath: str
+    :param fillColor: list
+    :param lineColor: list
+    :return: dict
+    '''
+
+    #parameter input
+    return {'version':version,"shapes":shapes,
+            'imagePath':imagePath,"imageData":imageData,'imageHeight':imageHeight,'imageWidth':imageWidth}
+
+def dict_shapes(points,label):
+    return {'points': points,  'label': label}
+
+
+version= ver
+imageData= None  #img_data
+shapes=[]
+'''
+points = eval(str(contours[0]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',','))
+label = 'mito'
+shapes.append(dict_shapes(points, label))
+
+points = eval(str(contours[1]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',',').replace('[,','['))
+label = 'mito'
+shapes.append(dict_shapes(points, label))
+
+points = eval(str(contours[2]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',',').replace('[,','['))
+label = 'mito'
+shapes.append(dict_shapes(points, label))
+
+points = eval(str(contours[3]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',',').replace('[,','['))
+label = 'mito'
+shapes.append(dict_shapes(points, label))
+
+points = eval(str(contours[4]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',',').replace('[,','['))
+label = 'mito'
+shapes.append(dict_shapes(points, label))
+
+points = eval(str(contours[5]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',',').replace('[,','['))
+label = 'mito'
+shapes.append(dict_shapes(points, label))
+
+points = eval(str(contours[6]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',',').replace('[,','['))
+label = 'mito'
+shapes.append(dict_shapes(points, label))
+
+points = eval(str(contours[7]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',',').replace('[,','['))
+label = 'mito'
+shapes.append(dict_shapes(points, label))
+
+print("contours=/n",contours)
+print(len(contours))
+'''
+
+
+for i in range(0, num_con, 1):
+    if i < num_con:
+        np.set_printoptions(threshold = np.prod(contours[i].shape))
+        points = eval(str(contours[i]).replace('[[','[').replace('\n',',').replace(' ',',').replace(']]',']').replace(',,,',',').replace(',,',',').replace('[,','['))
+        label = 'mito'
+        shapes.append(dict_shapes(points, label))
+    else:
+        break
+
+
+#other mask
+
+#points=[[150,200],[200,200],[200,250],[150,250]]
+#label='mito'
+#shapes.append(dict_shapes(points,label))
+
+
+imagePath='/MAX_26_RI.png'           #refractive index image in same field by digital holographic microscopy
+#imagePath="/MAX_1_RI.png"
+
+
+imageHeight= height
+
+imageWidth= weight
+
+data=dict_json(imageData,shapes,imagePath,version,imageHeight,imageWidth)
+
+# build new json_file
+'''
+json_file = '/1_FITC_test.json'       #output .json file 
+json.dump(data,open(json_file,'w'))
+'''
+
+
+#build new json file in imagepath
+json_file = data
+with open(imagePath.split(imagePath.split('.')[-1])[0]+'json', 'a+') as f:#a+ to w
+    f.write(json.dumps(data))
+
+
+'''
+print("contours=/n",contours)
+cv2.drawContours(o, contours, -1, (0, 0, 255), 3)
+cv2.imshow("img", o)
+cv2.waitKey(0)
+cv2.destroyWindow("img")
+'''
